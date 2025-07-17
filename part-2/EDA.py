@@ -1,89 +1,89 @@
-import os  # to build file paths dynamically
-import pandas as pd  # for data loading and manipulation
-import matplotlib.pyplot as plt  # for creating visualizations
+import os  # I need os to build a path to my data file automatically
+import pandas as pd  # pandas helps me load and work with the CSV
+import matplotlib.pyplot as plt  # matplotlib lets me create charts
 
-# Construct the full path to the CSV file based on this script's location
-script_dir = os.path.dirname(__file__)  # get directory where EDA.py resides
-csv_filename = "NANDURI Kushath Sri Krishna Rao - data.csv"  # data file name
+# Figure out where this script is so I can load the CSV from the same folder
+script_dir = os.path.dirname(__file__)  # gets the directory of EDA.py
+csv_filename = "NANDURI Kushath Sri Krishna Rao - data.csv"  # name of my data file
 csv_file = os.path.join(script_dir, csv_filename)  # full path to the CSV
 
-# Load the CSV data into a DataFrame
+# Read the data into a DataFrame so I can explore it
 df = pd.read_csv(csv_file)
 
-# Convert 'Market value as of 31 December, 2023' from string to float
+# Clean up the market value column by removing commas and $ then convert to float
 df["Market value as of 31 December, 2023"] = (
     df["Market value as of 31 December, 2023"]
-    .str.replace(",", "")     # remove thousands separator commas
-    .str.replace("$", "")     # remove dollar sign
-    .astype(float)            # convert cleaned strings to numeric type
+    .str.replace(",", "")  # strip out commas
+    .str.replace("$", "")  # strip out the dollar sign
+    .astype(float)         # convert text to numeric
 )
 
-# Convert 'Number of shares' from string to float
+# Clean up the number of shares column: drop commas and convert to float
 df["Number of shares"] = (
     df["Number of shares"]
-    .str.replace(",", "")     # remove commas
-    .astype(float)            # convert to numeric
+    .str.replace(",", "")  # remove commas for thousands
+    .astype(float)         # convert to numeric
 )
 
-# Convert '% of total portfolio' from string to float
+# Clean up the portfolio percentage: remove % sign and convert to float
 df["% of total portfolio"] = (
     df["% of total portfolio"]
-    .str.replace("%", "")     # remove percent symbol
-    .astype(float)            # convert to numeric
+    .str.replace("%", "")  # drop percent symbol
+    .astype(float)         # convert to numeric
 )
 
-# Display DataFrame structure after cleaning
+# Print info so I can see column types and check for missing data
 print("DataFrame info after cleaning:")
-print(df.info())  # shows data types and non-null counts
+print(df.info())
 
-# Display summary statistics for numeric columns
+# Print summary statistics to get an overview of the numeric columns
 print("\nSummary statistics after cleaning:")
-print(df.describe())  # basic stats: mean, std, min, max, etc.
+print(df.describe())
 
-# Identify numeric and categorical columns
-num_cols = df.select_dtypes(include="number").columns  # list of numeric column names
-cat_cols = df.select_dtypes(exclude="number").columns  # list of non-numeric column names
+# Identify which columns are numeric versus categorical
+num_cols = df.select_dtypes(include="number").columns  # numeric columns
+cat_cols = df.select_dtypes(exclude="number").columns  # non-numeric columns
 
 # --- Chart 1: Histogram of Market Value ---
-plt.figure()  # start a new figure
-plt.hist(df["Market value as of 31 December, 2023"])  # plot histogram bars
-plt.title("Distribution of Market Value as of 31 Dec 2023")  # chart title
-plt.xlabel("Market value (USD)")  # x-axis label
-plt.ylabel("Number of companies")  # y-axis label
-plt.show()  # render the plot
+plt.figure()  # start a new chart
+plt.hist(df["Market value as of 31 December, 2023"])  # plot histogram
+plt.title("Distribution of Market Value as of 31 Dec 2023")  # add title
+plt.xlabel("Market value (USD)")  # label x-axis
+plt.ylabel("Number of companies")  # label y-axis
+plt.show()  # display the chart
 
 # --- Chart 2: Boxplot of Number of Shares ---
-plt.figure()  # start another figure
-plt.boxplot(df["Number of shares"])  # draw a boxplot
-plt.title("Boxplot of Number of Shares")  # chart title
-plt.ylabel("Number of shares")  # y-axis label
-plt.show()  # render the plot
+plt.figure()  # open a new chart
+plt.boxplot(df["Number of shares"])  # draw boxplot
+plt.title("Boxplot of Number of Shares")  # add title
+plt.ylabel("Number of shares")  # label y-axis
+plt.show()  # show the boxplot
 
 # --- Chart 3: Bar Chart of Domain Counts ---
-plt.figure()  # start another figure
-df["Domain"].value_counts().plot(kind="bar")  # bar chart of how many companies per domain
-plt.title("Count of Companies by Domain")  # chart title
-plt.xlabel("Domain")  # x-axis label
-plt.ylabel("Count")  # y-axis label
-plt.show()  # render the plot
+plt.figure()  # open another chart
+df["Domain"].value_counts().plot(kind="bar")  # bar chart of domain counts
+plt.title("Count of Companies by Domain")  # add title
+plt.xlabel("Domain")  # label x-axis
+plt.ylabel("Count")  # label y-axis
+plt.show()  # show the bar chart
 
 # --- Chart 4: Scatter Plot of Shares vs. Market Value ---
-plt.figure()  # start another figure
+plt.figure()  # open a new chart
 plt.scatter(
-    df["Number of shares"],  # use number of shares for x-axis
-    df["Market value as of 31 December, 2023"]  # use market value for y-axis
+    df["Number of shares"],  # x-axis data
+    df["Market value as of 31 December, 2023"]  # y-axis data
 )  # plot scatter points
-plt.title("Market Value vs. Number of Shares")  # chart title
-plt.xlabel("Number of shares")  # x-axis label
-plt.ylabel("Market value (USD)")  # y-axis label
-plt.show()  # render the plot
+plt.title("Market Value vs. Number of Shares")  # add title
+plt.xlabel("Number of shares")  # label x-axis
+plt.ylabel("Market value (USD)")  # label y-axis
+plt.show()  # display the scatter plot
 
 # --- Chart 5: Correlation Matrix Heatmap ---
-corr = df[num_cols].corr()  # compute correlation matrix among numeric columns
-plt.figure()  # start another figure
-plt.imshow(corr, interpolation="none")  # display matrix as image
-plt.colorbar()  # add a color scale legend
+corr = df[num_cols].corr()  # calculate correlations among numeric columns
+plt.figure()  # open a new chart
+plt.imshow(corr, interpolation="none")  # display correlation matrix
+plt.colorbar()  # show color scale legend
 plt.xticks(range(len(corr)), corr.columns, rotation=90)  # label x-axis ticks
 plt.yticks(range(len(corr)), corr.index)  # label y-axis ticks
-plt.title("Correlation Matrix of Numeric Features")  # chart title
-plt.show()  # render the heatmap
+plt.title("Correlation Matrix of Numeric Features")  # add title
+plt.show()  # display the heatmap
